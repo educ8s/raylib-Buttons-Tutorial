@@ -23,16 +23,40 @@ Button::~Button()
 
 void Button::Draw()
 {
-    DrawTextureV(texture, position, WHITE);
+    DrawTextureV(texture, position, (wasHoveredBefore ? darkenColor : normalColor));
+}
+
+void Button::SetPosition(Vector2 newPosition)
+{
+    position = newPosition;
 }
 
 bool Button::isPressed(Vector2 mousePos, bool mousePressed)
 {   
     Rectangle rect = {position.x, position.y, static_cast<float>(texture.width), static_cast<float>(texture.height)};
+    
+    bool isHovered = CheckCollisionPointRec(mousePos, rect);
 
-    if(CheckCollisionPointRec(mousePos,rect) && mousePressed)
+    if (!isHovered && wasHoveredBefore)
     {
-        return true;
+        UnHovered();
+        wasHoveredBefore = false;
     }
-    return false;
+    else if (isHovered && !wasHoveredBefore)
+    {
+        Hovered();
+        wasHoveredBefore = true;
+    }
+
+    return isHovered && mousePressed;
+}
+
+void Button::Hovered()
+{
+    SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+}
+
+void Button::UnHovered()
+{
+    SetMouseCursor(MOUSE_CURSOR_DEFAULT);
 }
